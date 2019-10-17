@@ -3,7 +3,7 @@ project(lab2)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(lab2 main.cpp)
+add_executable(lab2 main.cpp structs.h LinkedList.h)
 
 target_link_libraries(lab2
 #    -Wl,-rpath=${LINK_DIR_REL}

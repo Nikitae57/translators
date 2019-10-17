@@ -3,35 +3,20 @@
 #include <regex>
 #include <map>
 
+#include "structs.h"
+#include "LinkedList.h"
+
 using namespace std;
 
-enum TYPES {
-    ID, CONST_INT, CONST_FLOAT, ERROR
-};
-
-map<TYPES, string> typeToString = {
-    {ID, "ID"},
-    {CONST_INT, "CONST_INT"},
-    {CONST_FLOAT, "CONST_FLOAT"},
-    {ERROR, "ERROR"}
+map<SYMBOL_CLASS, string> typeToString = {
+    {NUMBER, "NUMBER"},
+    {OPERATION, "OPERATION"},
+    {BRACKET, "BRACKET"}
 };
 
 ifstream inStream;
-string yytext;
-TYPES currentType;
 
-bool isId(const string& token) {
-    bool isId = true;
-    regex pattern(R"([a-zA-Z](\d|[a-zA-Z])*)");
-    smatch match;
-    regex_match(token, match, pattern);
-
-    if (match.length() <= 0) {
-        isId = false;
-    }
-
-    return isId;
-}
+LinkedList<TOKEN> list;
 
 bool isConstInt(const string& token) {
     bool isConstInt = true;
@@ -44,6 +29,23 @@ bool isConstInt(const string& token) {
     }
 
     return isConstInt;
+}
+
+bool isOperation(const string &token) {
+    bool isOperation = true;
+    regex pattern(R"([+-/*])");
+    smatch match;
+    regex_match(token, match, pattern);
+
+    if (match.length() <= 0) {
+        isOperation = false;
+    }
+
+    return isOperation;
+}
+
+bool isBracket(const string &token) {
+    return token.length() == 1 && (token[0] == '(' || token[0] == ')');
 }
 
 bool isConstFloat(const string& token) {
@@ -66,27 +68,28 @@ void yylex() {
         return;
     }
 
-    string token;
-    inStream >> token;
-    string s = " s = asd";
+    string tokenStr;
+    inStream >> tokenStr;
 
-    if (token.length() == 1 && token[0] == '\n') {
+    if (tokenStr.length() == 1 && tokenStr[0] == '\n') {
         return;
     }
 
-    if (isId(token)) {
-        yytext = token;
-        currentType = ID;
-    } else if (isConstInt(token)) {
-        yytext = token;
-        currentType = CONST_INT;
-    } else if (isConstFloat(token)) {
-        yytext = token;
-        currentType = CONST_FLOAT;
-    } else {
-        yytext = token;
-        currentType = ERROR;
+    TOKEN* token = new TOKEN();
+    if (isConstFloat(tokenStr) || isConstInt(tokenStr)) {
+        token->type = SYMBOL_CLASS::NUMBER;
+        token->sym.num = stof(tokenStr);
+
+    } else if (isOperation(tokenStr)) {
+        token->type = SYMBOL_CLASS::OPERATION;
+        token->sym.special_char = tokenStr[0];
+
+    } else if (isBracket(tokenStr)) {
+        token->type = SYMBOL_CLASS::BRACKET;
+        token->sym.special_char = tokenStr[0];
     }
+
+    list.addItem(token);
 }
 
 int main(int argc, char* argv[]) {
@@ -102,22 +105,20 @@ int main(int argc, char* argv[]) {
         exit(0);
     }
 
-    yylex();
-    cout << typeToString[currentType] << ':' << yytext;
+    {
+        int i = 0;
+        while (!inStream.eof()) {
+            yylex();
+            TOKEN* token = list.getItem(i);
+            cout << typeToString[token->type] << ':';
 
-    switch (currentType) {
-        case CONST_INT: {
-            int i = stoi(yytext);
-            break;
-        }
+            if (token->type == NUMBER) {
+                cout << token->sym.num << endl;
+            } else {
+                cout << token->sym.special_char << endl;
+            }
 
-        case CONST_FLOAT: {
-            float i = stof(yytext);
-            break;
-        }
-
-        default: {
-            string i = yytext;
+            i++;
         }
     }
 

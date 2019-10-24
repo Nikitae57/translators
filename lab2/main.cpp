@@ -5,13 +5,18 @@
 
 #include "structs.h"
 #include "LinkedList.h"
+#include "AstBuilder.h"
 
 using namespace std;
 
 map<SYMBOL_CLASS, string> typeToString = {
     {NUMBER, "NUMBER"},
-    {OPERATION, "OPERATION"},
-    {BRACKET, "BRACKET"}
+    {OPERATION_ADD, "OPERATION_ADD"},
+    {OPERATION_DIV, "OPERATION_DIV"},
+    {OPERATION_MUL, "OPERATION_MUL"},
+    {OPERATION_SUB, "OPERATION_SUB"},
+    {CLOSE_BRACKET, "CLOSE_BRACKET"},
+    {OPEN_BRACKET, "OPEN_BRACKET"}
 };
 
 ifstream inStream;
@@ -81,11 +86,36 @@ void yylex() {
         token->sym.num = stof(tokenStr);
 
     } else if (isOperation(tokenStr)) {
-        token->type = SYMBOL_CLASS::OPERATION;
-        token->sym.special_char = tokenStr[0];
+        switch (tokenStr[0]) {
+            case '*':
+                token->type = SYMBOL_CLASS::OPERATION_MUL;
+            break;
 
+            case '/':
+                token->type = SYMBOL_CLASS::OPERATION_DIV;
+            break;
+
+            case '+':
+                token->type = SYMBOL_CLASS::OPERATION_ADD;
+            break;
+
+            case '-':
+                token->type = SYMBOL_CLASS::OPERATION_SUB;
+            break;
+        }
+
+        token->sym.special_char = tokenStr[0];
     } else if (isBracket(tokenStr)) {
-        token->type = SYMBOL_CLASS::BRACKET;
+        switch (tokenStr[0]) {
+            case '(':
+                token->type = SYMBOL_CLASS::OPEN_BRACKET;
+            break;
+
+            case ')':
+                token->type = SYMBOL_CLASS::CLOSE_BRACKET;
+            break;
+        }
+
         token->sym.special_char = tokenStr[0];
     }
 
@@ -120,6 +150,14 @@ int main(int argc, char* argv[]) {
 
             i++;
         }
+
+        vector<TOKEN> tokenVector;
+        for (unsigned long j = 0; j < list.size(); j++) {
+            tokenVector.push_back(*list.getItem(j));
+        }
+
+        AstBuilder builder = AstBuilder();
+        AstNode* astRoot = builder.buildAstTree(tokenVector);
     }
 
     return 0;

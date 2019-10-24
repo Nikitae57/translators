@@ -16,6 +16,10 @@ class LinkedList {
     long length = 0;
 
 public:
+    unsigned long size() {
+        return length;
+    }
+
     void addItem(T* newItem) {
         if (root == nullptr) {
             root = new ITEM();
@@ -37,7 +41,7 @@ public:
         length++;
     }
 
-    T* getItem(int index) {
+    T* getItem(unsigned long index) {
         if (index + 1 > length || index < 0) {
             return nullptr;
         }

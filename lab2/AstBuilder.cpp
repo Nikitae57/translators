@@ -11,6 +11,7 @@ AstBuilder::AstBuilder() {
     classToPriority[OPERATION_SUB] = 1;
     classToPriority[OPERATION_MUL] = 2;
     classToPriority[OPERATION_DIV] = 2;
+    classToPriority[OPEN_BRACKET] = 0;
 }
 
 vector<TOKEN> AstBuilder::buildRpn(vector<TOKEN> &expression) {
@@ -33,43 +34,22 @@ vector<TOKEN> AstBuilder::buildRpn(vector<TOKEN> &expression) {
             }
 
             case CLOSE_BRACKET: {
-                TOKEN stackElement = st.top();
-                st.pop();
+                while (st.top().type != OPEN_BRACKET) {
+                    result.push_back(st.top());
+                    st.pop();
 
-                while (stackElement.type != OPEN_BRACKET) {
                     if (st.empty()) {
                         throw out_of_range("Invalid expression");
                     }
-
-                    result.push_back(stackElement);
-                    stackElement = st.top();
-                    st.pop();
                 }
+                st.pop();
                 break;
             }
 
             default: {
-                if (!st.empty()) {
-                    TOKEN stackElement = st.top();
-                    if (stackElement.type == OPEN_BRACKET || stackElement.type == CLOSE_BRACKET) {
-                        st.push(currentToken);
-                        break;
-                    }
-
-                    int pr1 = classToPriority[stackElement.type];
-                    int pr2 = classToPriority[currentToken.type];
-
-                    while (pr1 >= pr2) {
-                        result.push_back(stackElement);
-
-                        st.pop();
-                        if (st.empty()) {
-                            break;
-                        }
-
-                        stackElement = st.top();
-                    }
-
+                while (!st.empty() && (classToPriority[currentToken.type] <= classToPriority[st.top().type])) {
+                    result.push_back(st.top());
+                    st.pop();
                 }
                 st.push(currentToken);
             }
@@ -84,6 +64,15 @@ vector<TOKEN> AstBuilder::buildRpn(vector<TOKEN> &expression) {
     return result;
 }
 
+AstNode* AstBuilder::getLastLeftFree(AstNode *root) {
+    AstNode* currentNode = root;
+    while (currentNode->right != nullptr && currentNode->right->left != nullptr) {
+        currentNode = currentNode->right;
+    }
+
+    return currentNode->right;
+}
+
 AstNode* AstBuilder::buildAstTree(vector<TOKEN> expression) {
     vector<TOKEN> rpn = buildRpn(expression);
     
@@ -96,11 +85,17 @@ AstNode* AstBuilder::buildAstTree(vector<TOKEN> expression) {
             if (currentNode->left != nullptr) {
                 currentNode->right = new AstNode();
                 currentNode->right->token = rpn[i];
-            } else {
+                swap(currentNode->right, currentNode->left);
+            } else if (currentNode->right != nullptr) {
                 currentNode->left = new AstNode();
                 currentNode->left->token = rpn[i];
+            } else {
+                AstNode* tmp = getLastLeftFree(root);
+                tmp->left = new AstNode();
+                tmp->left->token = rpn[i];
             }
-        } else {
+        }
+        else {
             currentNode->right = new AstNode();
             currentNode->right->token = rpn[i];
             currentNode = currentNode->right;

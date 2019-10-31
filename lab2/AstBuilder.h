@@ -22,6 +22,7 @@ class AstBuilder {
 private:
     vector<TOKEN> buildRpn(vector<TOKEN> &expression);
     map<SYMBOL_CLASS, int> classToPriority;
+    AstNode* getLastLeftFree(AstNode* root);
 
 public:
     AstBuilder();

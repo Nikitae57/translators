@@ -142,6 +142,38 @@ void print_Tree(AstNode* p, int level)
 	}
 }
 
+float calculateTree(AstNode* root) {
+	if (root->token.type == SYMBOL_CLASS::NUMBER) {
+		return root->token.sym.num;
+	}
+
+	float result = 0;
+
+	switch (root->token.type)
+	{
+	case OPERATION_ADD:
+		result = calculateTree(root->right) + root->left->token.sym.num;
+		break;
+
+	case OPERATION_SUB:
+		result = calculateTree(root->right) - root->left->token.sym.num;
+		break;
+
+	case OPERATION_MUL:
+		result = calculateTree(root->right) * root->left->token.sym.num;
+		break;
+
+	case OPERATION_DIV:
+		result = calculateTree(root->right) / root->left->token.sym.num;
+		break;
+
+	default:
+		break;
+	}
+
+	return result;
+}
+
 int main(int argc, char* argv[]) {
     if (argc <= 1) {
         cout << "Usage: ./lab2 <file_to_parse>";
@@ -172,7 +204,11 @@ int main(int argc, char* argv[]) {
         AstNode* astRoot = builder.buildAstTree(tokenVector);
 
 		print_Tree(astRoot, 0);
+
+		cout << endl << endl;
+		cout << calculateTree(astRoot);
     }
+
 
     return 0;
 }

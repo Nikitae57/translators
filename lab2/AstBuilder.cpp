@@ -83,34 +83,34 @@ AstNode* AstBuilder::getLastLeftFree(AstNode *root) {
 
 AstNode* AstBuilder::buildAstTree(vector<TOKEN> expression) {
     vector<TOKEN> rpn = buildRpn(expression);
+	stack<AstNode*> stOperations;
     
     AstNode* root = new AstNode();
     root->token = rpn.back();
 
-    AstNode* currentNode = root;
-    for (long long i = rpn.size() - 2; i >= 0; i--) {
+    AstNode* prevNode = root;
 
-		if (rpn[i].type == SYMBOL_CLASS::NUMBER) {
-			if (currentNode->left == nullptr) {
-				currentNode->left = new AstNode();
-				currentNode->left->token = rpn[i];
-			}
-			else if (currentNode->right == nullptr) {
-				currentNode->right = new AstNode();
-				currentNode->right->token = rpn[i];
-				swap(currentNode->left, currentNode->right);
-			}
-			else {
-				AstNode* tmp = getLastLeftFree(root);
-				tmp->left = new AstNode();
-				tmp->left->token = rpn[i];
-			}
+    for (long long i = rpn.size() - 2; i >= 0; i--) {
+		AstNode* currentNode = new AstNode();
+		currentNode->token = rpn[i];
+
+		while (prevNode->left != nullptr && prevNode->right != nullptr) {
+			prevNode = stOperations.top();
+			stOperations.pop();
+		}
+
+		if (prevNode->right == nullptr) {
+			prevNode->right = currentNode;
 		}
 		else {
-			currentNode->right = new AstNode();
-			currentNode->right->token = rpn[i];
-			currentNode = currentNode->right;
+			prevNode->left = currentNode;
 		}
+
+		if (rpn[i].type != SYMBOL_CLASS::NUMBER) {
+			stOperations.push(prevNode);
+			prevNode = currentNode;
+		}
+
     }
     
     return root;

@@ -143,28 +143,28 @@ void print_Tree(AstNode* p, int level)
 }
 
 float calculateTree(AstNode* root) {
-	if (root->token.type == SYMBOL_CLASS::NUMBER) {
-		return root->token.sym.num;
-	}
-
 	float result = 0;
 
 	switch (root->token.type)
 	{
 	case OPERATION_ADD:
-		result = calculateTree(root->right) + root->left->token.sym.num;
+		result = calculateTree(root->left) + calculateTree(root->right);
 		break;
 
 	case OPERATION_SUB:
-		result = calculateTree(root->right) - root->left->token.sym.num;
+		result = calculateTree(root->left) - calculateTree(root->right);
 		break;
 
 	case OPERATION_MUL:
-		result = calculateTree(root->right) * root->left->token.sym.num;
+		result = calculateTree(root->left) * calculateTree(root->right);
 		break;
 
 	case OPERATION_DIV:
-		result = calculateTree(root->right) / root->left->token.sym.num;
+		result = calculateTree(root->left) / calculateTree(root->right);
+		break;
+
+	case NUMBER:
+		result = root->token.sym.num;
 		break;
 
 	default:

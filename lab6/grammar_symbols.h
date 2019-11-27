@@ -1,0 +1,12 @@
+//
+// Created by nikita on 27.11.2019.
+//
+
+#ifndef LAB6_GRAMMAR_SYMBOLS_H
+#define LAB6_GRAMMAR_SYMBOLS_H
+
+enum GRAMMAR_SYMBOL_TYPE {
+    WHILE, IF, ASSIGNMENT, ERROR
+};
+
+#endif //LAB6_GRAMMAR_SYMBOLS_H

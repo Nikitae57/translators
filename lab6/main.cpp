@@ -106,11 +106,11 @@ void makeExpression(const vector<string>& parentExpression, size_t index, vector
         int foundBegins = 1;
         index++;
         while (index != parentExpression.size() && foundBegins != 0) {
-            if (parentExpression[index].find(PASCAL_BEGIN)) {
+            if (parentExpression[index].find(PASCAL_BEGIN) != string::npos) {
                 foundBegins++;
             }
 
-            if (parentExpression[index].find(PASCAL_END)) {
+            if (parentExpression[index].find(PASCAL_END) != string::npos) {
                 foundBegins--;
             }
 

@@ -2,6 +2,7 @@
 #include <fstream>
 #include <regex>
 #include <map>
+#include<iomanip>
 
 #include "structs.h"
 #include "LinkedList.h"
@@ -122,6 +123,57 @@ void yylex() {
     list.addItem(token);
 }
 
+void print_Tree(AstNode* p, int level)
+{
+	if (p)
+	{
+		if (p->right) print_Tree(p->right, level + 4);
+		if (level) {
+			cout << setw(level) << ' ';
+		}
+
+		if (p->token.type == SYMBOL_CLASS::NUMBER) {
+			cout << p->token.sym.num << "\n";
+		}
+		else {
+			cout << p->token.sym.special_char << "\n";
+		}
+		if (p->left) print_Tree(p->left, level + 4);
+	}
+}
+
+float calculateTree(AstNode* root) {
+	float result = 0;
+
+	switch (root->token.type)
+	{
+	case OPERATION_ADD:
+		result = calculateTree(root->left) + calculateTree(root->right);
+		break;
+
+	case OPERATION_SUB:
+		result = calculateTree(root->left) - calculateTree(root->right);
+		break;
+
+	case OPERATION_MUL:
+		result = calculateTree(root->left) * calculateTree(root->right);
+		break;
+
+	case OPERATION_DIV:
+		result = calculateTree(root->left) / calculateTree(root->right);
+		break;
+
+	case NUMBER:
+		result = root->token.sym.num;
+		break;
+
+	default:
+		break;
+	}
+
+	return result;
+}
+
 int main(int argc, char* argv[]) {
     if (argc <= 1) {
         cout << "Usage: ./lab2 <file_to_parse>";
@@ -140,14 +192,6 @@ int main(int argc, char* argv[]) {
         while (!inStream.eof()) {
             yylex();
             TOKEN* token = list.getItem(i);
-            cout << typeToString[token->type] << ':';
-
-            if (token->type == NUMBER) {
-                cout << token->sym.num << endl;
-            } else {
-                cout << token->sym.special_char << endl;
-            }
-
             i++;
         }
 
@@ -158,7 +202,13 @@ int main(int argc, char* argv[]) {
 
         AstBuilder builder = AstBuilder();
         AstNode* astRoot = builder.buildAstTree(tokenVector);
+
+		print_Tree(astRoot, 0);
+
+		cout << endl << endl;
+		cout << calculateTree(astRoot);
     }
+
 
     return 0;
 }

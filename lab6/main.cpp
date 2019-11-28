@@ -47,7 +47,7 @@ bool isAssignmentCorrect(const string& line) {
 }
 
 bool isIfCorrect(const string& line) {
-    string patternStr = R"(^IF\s*BE\s*THEN\s*$)";
+    string patternStr = R"(^\s*IF\s*BE\s*THEN\s*$)";
     regex pattern(patternStr);
     smatch match;
 
@@ -119,7 +119,7 @@ void makeExpression(const vector<string>& parentExpression, size_t index, vector
         }
         return;
     } else if (isOneLiner(parentExpression[index])) {
-        returnVector.push_back(parentExpression[index + 1]);
+        returnVector.push_back(parentExpression[index]);
         return;
     } else {
         returnVector.push_back(parentExpression[index]);
@@ -146,7 +146,7 @@ bool checkSyntax(const vector<string>& lines) {
                     return false;
                 }
                 vector<string> expression;
-                for (int j = 1; j <= lines.size() - 2; j++) {
+                for (size_t j = 1; j <= lines.size() - 2; j++) {
                     expression.push_back(lines[j]);
                 }
 
@@ -164,7 +164,7 @@ bool checkSyntax(const vector<string>& lines) {
                 makeExpression(lines, i + 1, expression);
                 isCorrect = checkSyntax(expression);
                 if (!isCorrect) { return false; }
-                i += expression.size() + 1;
+                i += expression.size();
 
                 break;
             }
@@ -174,7 +174,7 @@ bool checkSyntax(const vector<string>& lines) {
                 makeExpression(lines, i + 1, expression);
                 isCorrect = checkSyntax(expression);
                 if (!isCorrect) { return false; }
-                i += expression.size() + 1;
+                i += expression.size();
 
                 break;
             }

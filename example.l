@@ -3,14 +3,14 @@
 %}
 D [0-9]
 L [a-zA-Z]
-ASSINGMENT ":="
-ID L(D|L)*
-
+ID {L}({D}|{L})*
+SPACE " "
+ASSINGMENT {SPACE}*{ID}{SPACE}*:={SPACE}*({ID}|{D}){SPACE}*
 %%
-
+{ID} { printf("ID"); }
+{ASSINGMENT} { printf("ASSINGMENT"); }
 %%
 int main(void) {
 	yylex();
-	printf(yytext);
 	return 0;
 }

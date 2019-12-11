@@ -1,0 +1,20 @@
+BEGIN
+ID := BE
+IF BE THEN
+	BEGIN
+	ID := 5
+	ID := 4
+	WHILE BE DO
+		BEGIN
+		ID := 2
+		IF BE THEN
+			ID := 1
+		IF BE THEN
+			ID := 2
+		ELSE
+			ID := 3
+		END
+	END
+ID := 2 + 5
+ID := 3.14
+END

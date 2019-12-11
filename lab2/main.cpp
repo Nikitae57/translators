@@ -206,7 +206,7 @@ int main(int argc, char* argv[]) {
 		print_Tree(astRoot, 0);
 
 		cout << endl << endl;
-		cout << calculateTree(astRoot);
+		cout << "Calculation result: " << calculateTree(astRoot);
     }
 
 

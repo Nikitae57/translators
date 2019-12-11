@@ -8,6 +8,7 @@
 
 #define PASCAL_BEGIN "BEGIN"
 #define PASCAL_END "END"
+#define PASCAL_ELSE "ELSE"
 #define PASCAL_IF "IF"
 #define PASCAL_WHILE "WHILE"
 #define PASCAL_ASSIGNMENT ":="
@@ -57,6 +58,17 @@ bool isIfCorrect(const string& line) {
     return isIfCorrect;
 }
 
+bool isElseCorrect(const string& line) {
+	string patternStr = R"(^\s*ELSE\s*$)";
+	regex pattern(patternStr);
+	smatch match;
+
+	bool isElseCorrect = regex_match(line, match, pattern);
+	cout << "Is ELSE correct: " << isElseCorrect << " string: '" << line << '\'' << endl;
+
+	return isElseCorrect;
+}
+
 bool isWhileCorrect(const string& line) {
     string patternStr = R"(^\s*WHILE\s*BE\s*DO\s*$)";
     regex pattern(patternStr);
@@ -85,6 +97,12 @@ GRAMMAR_SYMBOL_TYPE determineGrammarSymbolType(string& line) {
         bool isCorrect = isIfCorrect(line);
         return isCorrect ? GRAMMAR_SYMBOL_TYPE::IF : GRAMMAR_SYMBOL_TYPE::ERROR;
     }
+
+	// else
+	if (line.find(PASCAL_ELSE) != string::npos) {
+		bool isCorrect = isElseCorrect(line);
+		return isCorrect ? GRAMMAR_SYMBOL_TYPE::ELSE : GRAMMAR_SYMBOL_TYPE::ERROR;
+	}
 
     // while
     if (line.find(PASCAL_WHILE) != string::npos) {
@@ -165,9 +183,24 @@ bool checkSyntax(const vector<string>& lines) {
                 isCorrect = checkSyntax(expression);
                 if (!isCorrect) { return false; }
                 i += expression.size();
-
+				if (lines.size() > (i + 1)) {
+					string nextString = lines[i + 1];
+					if (determineGrammarSymbolType(nextString) == GRAMMAR_SYMBOL_TYPE::ELSE) {
+						i++;
+						expression.clear();
+						makeExpression(lines, i + 1, expression);
+						isCorrect = checkSyntax(expression);
+						if (!isCorrect) { return false; }
+						i += expression.size();
+					}
+				}
                 break;
             }
+
+			case GRAMMAR_SYMBOL_TYPE::ELSE: {
+				return false;
+				break;
+			}
 
             case GRAMMAR_SYMBOL_TYPE::WHILE: {
                 vector<string> expression;

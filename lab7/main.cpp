@@ -66,9 +66,7 @@ int main() {
 	AstNode* root = builder.buildAstTree(lines);
 
 	cout << endl << endl;
-
 	print_Tree(root, 0);
-
 	cout << endl << endl;
 
     bool isCorrect = root != nullptr;

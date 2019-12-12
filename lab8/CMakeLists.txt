@@ -9,4 +9,4 @@ file(GLOB SRC
 )
 
 
-add_executable(lab8 ${SRC} TokenListBuilder.cpp TokenListBuilder.h)
+add_executable(lab8 ${SRC} TokenListBuilder.cpp TokenListBuilder.h AstBuilder.cpp AstBuilder.h)

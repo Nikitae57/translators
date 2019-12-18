@@ -51,7 +51,7 @@ vector<TOKEN> TokenListBuilder::parseInput(vector<string> words) {
         SYMBOL_CLASS symbolClass = determineSymbolClass(word);
 
         if (symbolClass == SYMBOL_CLASS::ERROR) {
-            cout << "Can't determine token type";
+            cout << "Can't determine type of token: " << word;
             exit(-1);
         }
 

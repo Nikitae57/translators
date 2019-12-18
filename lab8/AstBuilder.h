@@ -7,8 +7,12 @@
 
 #include "TokenListBuilder.h"
 
+enum AST_NODE_TYPE {
+    WHILE, IF, ASSIGNMENT, BLOCK, ARITHMETIC_EXPR, BOOL_EXPR, ID_AST
+};
+
 struct AstNode {
-    TOKEN type;
+    AST_NODE_TYPE type;
     vector<AstNode*> children;
 };
 
@@ -25,6 +29,10 @@ private:
 
 public:
     AstNode* buildAstTree(vector<TOKEN> tokens);
+
+    void makeBlockContent(const vector<TOKEN> &parentExpression, size_t index, vector<TOKEN> &returnVector);
+
+    void makeOneLiner(const vector<TOKEN> &parentExpression, size_t index, vector<TOKEN> &returnVector);
 };
 
 

@@ -1,8 +1,8 @@
 #include "TokenListBuilder.h"
 
 int main() {
-    auto builder = TokenListBuilder();
-    auto list = builder.buildTokenList("test");
+    auto tokenListBuilder = TokenListBuilder();
+    auto list = tokenListBuilder.buildTokenList("test");
 
     for (auto t : list) {
         int i = 0;

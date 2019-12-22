@@ -14,6 +14,7 @@ enum AST_NODE_TYPE {
 struct AstNode {
     AST_NODE_TYPE type;
     vector<AstNode*> children;
+    TOKEN exprToken;
 };
 
 class AstBuilder {

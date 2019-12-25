@@ -29,6 +29,7 @@ SYMBOL_CLASS TokenListBuilder::determineSymbolClass(string &word) {
     classToRegex[COMMAND_BEGIN] = R"(BEGIN)";
     classToRegex[COMMAND_END] = R"(END)";
     classToRegex[COMMAND_IF] = R"(IF)";
+    classToRegex[COMMAND_THEN] = R"(THEN)";
     classToRegex[COMMAND_ELSE] = R"(ELSE)";
 
     for (const auto& cToReg : classToRegex) {

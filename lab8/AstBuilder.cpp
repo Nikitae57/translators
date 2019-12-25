@@ -404,9 +404,15 @@ bool AstBuilder::checkAndBuildTree(vector<TOKEN> tokens, AstNode *&root) {
             }
 
             case SYMBOL_CLASS::COMMAND_IF: {
-
                 vector<TOKEN> boolExprTokens;
+                if (i == tokens.size() - 2) {
+                    return false;
+                }
+
                 while (tokens[++i].type != SYMBOL_CLASS::COMMAND_THEN) {
+                    if (i == tokens.size() - 2) {
+                        return false;
+                    }
                     boolExprTokens.push_back(tokens[i]);
                 }
 

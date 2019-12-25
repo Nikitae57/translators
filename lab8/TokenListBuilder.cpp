@@ -46,7 +46,14 @@ SYMBOL_CLASS TokenListBuilder::determineSymbolClass(string &word) {
 
 vector<TOKEN> TokenListBuilder::parseInput(vector<string> words) {
     vector<TOKEN> returnVector;
+    auto spaceRegex = regex(R"(\s+)");
+    smatch match;
+
     for (auto & word : words) {
+        if (regex_match(word, match, spaceRegex) || word.empty()) {
+            continue;
+        }
+
         TOKEN token;
         SYMBOL_CLASS symbolClass = determineSymbolClass(word);
 

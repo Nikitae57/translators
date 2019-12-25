@@ -27,13 +27,11 @@ private:
 
     bool checkAndBuildTree(vector<TOKEN> tokens, AstNode*& root);
     void deleteTree(AstNode* root);
+    void makeBlockContent(const vector<TOKEN> &parentExpression, size_t index, vector<TOKEN> &returnVector);
+    void makeOneLiner(const vector<TOKEN> &parentExpression, size_t index, vector<TOKEN> &returnVector);
 
 public:
-    AstNode* buildAstTree(vector<TOKEN> tokens);
-
-    void makeBlockContent(const vector<TOKEN> &parentExpression, size_t index, vector<TOKEN> &returnVector);
-
-    void makeOneLiner(const vector<TOKEN> &parentExpression, size_t index, vector<TOKEN> &returnVector);
+    AstNode* buildAstTree(vector<TOKEN>& tokens);
 };
 
 

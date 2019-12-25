@@ -8,15 +8,21 @@ using namespace std;
 
 bool AstBuilder::checkAndBuildExprTree(vector<TOKEN> tokens, AstNode *&root) {
     vector<TOKEN> rpn;
+    stack<AstNode*> stOperations;
     try {
         rpn = buildExprRpn(tokens);
     } catch (exception &e) {
         return false;
     }
 
-    stack<AstNode*> stOperations;
+    root = new AstNode();
+    root->exprToken = rpn.back();
     AstNode* prevNode = root;
+
+    prevNode->children.push_back(nullptr);
+    prevNode->children.push_back(nullptr);
     for (long long i = rpn.size() - 2; i >= 0; i--) {
+
         auto currentNode = new AstNode();
         currentNode->exprToken = rpn[i];
 
@@ -34,6 +40,8 @@ bool AstBuilder::checkAndBuildExprTree(vector<TOKEN> tokens, AstNode *&root) {
         if (rpn[i].type != SYMBOL_CLASS::NUMBER) {
             stOperations.push(prevNode);
             prevNode = currentNode;
+            prevNode->children.push_back(nullptr);
+            prevNode->children.push_back(nullptr);
         }
     }
     root->exprToken = rpn.back();
@@ -43,14 +51,19 @@ bool AstBuilder::checkAndBuildExprTree(vector<TOKEN> tokens, AstNode *&root) {
 
 bool AstBuilder::checkAndBuildBooleanExprTree(vector<TOKEN> tokens, AstNode *&root) {
     vector<TOKEN> rpn;
+    stack<AstNode*> stOperations;
     try {
         rpn = buildBoolExprRpn(tokens);
     } catch (exception &e) {
         return false;
     }
 
-    stack<AstNode*> stOperations;
+    root = new AstNode();
+    root->exprToken = rpn.back();
     AstNode* prevNode = root;
+
+    prevNode->children.push_back(nullptr);
+    prevNode->children.push_back(nullptr);
     for (long long i = rpn.size() - 2; i >= 0; i--) {
         auto currentNode = new AstNode();
         currentNode->exprToken = rpn[i];
@@ -69,6 +82,8 @@ bool AstBuilder::checkAndBuildBooleanExprTree(vector<TOKEN> tokens, AstNode *&ro
         if (rpn[i].type != SYMBOL_CLASS::NUMBER) {
             stOperations.push(prevNode);
             prevNode = currentNode;
+            prevNode->children.push_back(nullptr);
+            prevNode->children.push_back(nullptr);
         }
     }
     root->exprToken = rpn.back();
@@ -86,11 +101,17 @@ vector<TOKEN> AstBuilder::buildBoolExprRpn(vector<TOKEN> &tokens) {
     allowedTokens.push_back(SYMBOL_CLASS::OPERATION_NOT_EQUALS);
     allowedTokens.push_back(SYMBOL_CLASS::BOOLEAN);
 
-    for (auto & token : tokens) {
-        for (auto & allowedToken : allowedTokens) {
-            if (token.type != allowedToken) {
-                throw runtime_error("Incorrect expression");
+    for (auto &token : tokens) {
+        auto isTokenAllowed = false;
+        for (auto &allowedToken : allowedTokens) {
+            if (token.type == allowedToken) {
+                isTokenAllowed = true;
+                break;
             }
+        }
+
+        if (!isTokenAllowed) {
+            throw runtime_error("Incorrect expression");
         }
     }
 
@@ -167,11 +188,17 @@ vector<TOKEN> AstBuilder::buildExprRpn(vector<TOKEN> &tokens) {
     allowedTokens.push_back(SYMBOL_CLASS::OPERATION_ADD);
     allowedTokens.push_back(SYMBOL_CLASS::OPERATION_SUB);
 
-    for (auto & token : tokens) {
-        for (auto & allowedToken : allowedTokens) {
-            if (token.type != allowedToken) {
-                throw runtime_error("Incorrect expression");
+    for (auto &token : tokens) {
+        auto isTokenAllowed = false;
+        for (auto &allowedToken : allowedTokens) {
+            if (token.type == allowedToken) {
+                isTokenAllowed = true;
+                break;
             }
+        }
+
+        if (!isTokenAllowed) {
+            throw runtime_error("Incorrect expression");
         }
     }
 
@@ -371,6 +398,7 @@ bool AstBuilder::checkAndBuildTree(vector<TOKEN> tokens, AstNode *&root) {
 
                 isCorrect = checkAndBuildExprTree(exprTokens, result->children.back());
                 if (!isCorrect) { return false; }
+                result->children.back()->type = AST_NODE_TYPE::ARITHMETIC_EXPR;
 
                 break;
             }
@@ -409,12 +437,13 @@ bool AstBuilder::checkAndBuildTree(vector<TOKEN> tokens, AstNode *&root) {
             default: {}
         }
 
+        i++;
     }
 
     return isCorrect;
 }
 
-AstNode* AstBuilder::buildAstTree(vector<TOKEN> tokens) {
+AstNode* AstBuilder::buildAstTree(vector<TOKEN>& tokens) {
     AstNode* result = nullptr;
     if (!checkAndBuildTree(tokens, result)) {
         deleteTree(result);

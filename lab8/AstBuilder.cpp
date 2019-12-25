@@ -318,6 +318,7 @@ void AstBuilder::makeBlockContent(
             returnVector.push_back(parentExpression[index]);
             index++;
         }
+
     } else if (isOneLiner(parentExpression[index])) {
         makeOneLiner(parentExpression, index, returnVector);
         return;
@@ -343,6 +344,21 @@ bool AstBuilder::checkAndBuildTree(vector<TOKEN> tokens, AstNode *&root) {
         switch (currentToken.type) {
             case SYMBOL_CLASS::ERROR: {
                 cout << "Bad token: " << currentToken.sym.str_val;
+                break;
+            }
+
+            case SYMBOL_CLASS::COMMAND_BEGIN: {
+                vector<TOKEN> blockContent;
+                makeBlockContent(tokens, i, blockContent);
+                i += blockContent.size() + 1;
+
+                // Remove first BEGIN and last END (it's belong to parent block)
+                blockContent.erase(blockContent.begin());
+                blockContent.erase(blockContent.begin() + blockContent.size() - 1);
+
+                result->type = AST_NODE_TYPE::BLOCK;
+                checkAndBuildTree(blockContent, root);
+
                 break;
             }
 
@@ -374,7 +390,7 @@ bool AstBuilder::checkAndBuildTree(vector<TOKEN> tokens, AstNode *&root) {
                 makeBlockContent(tokens, i + 1, whileContent);
                 isCorrect = checkAndBuildTree(whileContent, result->children.back());
                 if (!isCorrect) { return false; }
-                i += whileContent.size();
+                i += whileContent.size() + 1;
 
                 break;
             }
@@ -394,7 +410,6 @@ bool AstBuilder::checkAndBuildTree(vector<TOKEN> tokens, AstNode *&root) {
                 while (tokens[i].type != SYMBOL_CLASS::SEMICOLON) {
                     exprTokens.push_back(tokens[i++]);
                 }
-                i++;
 
                 isCorrect = checkAndBuildExprTree(exprTokens, result->children.back());
                 if (!isCorrect) { return false; }
@@ -404,11 +419,13 @@ bool AstBuilder::checkAndBuildTree(vector<TOKEN> tokens, AstNode *&root) {
             }
 
             case SYMBOL_CLASS::COMMAND_IF: {
+                result->type = AST_NODE_TYPE::IF;
                 vector<TOKEN> boolExprTokens;
                 if (i == tokens.size() - 2) {
                     return false;
                 }
 
+                // Get boolean expression
                 while (tokens[++i].type != SYMBOL_CLASS::COMMAND_THEN) {
                     if (i == tokens.size() - 2) {
                         return false;
@@ -419,28 +436,31 @@ bool AstBuilder::checkAndBuildTree(vector<TOKEN> tokens, AstNode *&root) {
                 result->children.push_back(nullptr);
                 isCorrect = checkAndBuildBooleanExprTree(boolExprTokens, result->children.back());
                 if (!isCorrect) { return false; }
+                result->children.back()->type = AST_NODE_TYPE::BOOL_EXPR;
 
+                // Get THEN content
                 result->children.push_back(nullptr);
                 vector<TOKEN> thenContent;
                 makeBlockContent(tokens, i + 1, thenContent);
                 isCorrect = checkAndBuildTree(thenContent, result->children.back());
                 if (!isCorrect) { return false; }
 
-                i += thenContent.size();
+                i += thenContent.size() + 1;
                 result->children.push_back(nullptr);
-                if (tokens[i + 1].type == SYMBOL_CLASS::COMMAND_ELSE) {
+                if (tokens[i].type == SYMBOL_CLASS::COMMAND_ELSE) {
                     vector<TOKEN> elseContent;
                     makeBlockContent(tokens, i + 1, elseContent);
                     isCorrect = checkAndBuildTree(elseContent, result->children.back());
 
                     if (!isCorrect) { return false; }
-                    i += elseContent.size();
+                    i += elseContent.size() + 1;
                 }
 
                 break;
             }
 
-            default: {}
+            default: {
+            }
         }
 
         i++;

@@ -5,13 +5,13 @@ int main() {
     auto tokenListBuilder = TokenListBuilder();
     auto tokenList = tokenListBuilder.buildTokenList("test");
 
-
-    for (auto t : tokenList) {
-        int i = 0;
+    auto astBuilder = AstBuilder();
+    AstNode* astRoot = astBuilder.buildAstTree(tokenList);
+    if (astRoot == nullptr) {
+        cout << "Ast built incorrectly" << endl;
+    } else {
+        cout << "Ast built correctly" << endl;
     }
 
-    auto astBuilder = AstBuilder();
-    astBuilder.buildAstTree(tokenList);
-
-    return 1;
+     return 1;
 }

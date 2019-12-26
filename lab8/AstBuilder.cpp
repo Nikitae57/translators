@@ -390,7 +390,7 @@ bool AstBuilder::checkAndBuildTree(vector<TOKEN> tokens, AstNode *&root) {
                 makeBlockContent(tokens, i + 1, whileContent);
                 isCorrect = checkAndBuildTree(whileContent, result->children.back());
                 if (!isCorrect) { return false; }
-                i += whileContent.size() + 1;
+                i += whileContent.size();
 
                 break;
             }
